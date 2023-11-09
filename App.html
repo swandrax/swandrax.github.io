@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="script.js"></script>
+  <title>Restoran App</title>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  }
+
+  .container {
+  display: none;
+  }
+
+  #login-container {
+  display: block;
+  }
+
+  #menu-container, #payment-container, #receipt-container {
+  margin-top: 20px;
+  }
+
+  .hidden {
+  display: none;
+  }
+
+  table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  }
+
+  th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  }
+</style>
+</head>
+<body>
+<div id="login-container" class="container">
+  <h2>Login</h2>
+  <form id="login-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
+    <br>
+    <button type="button" onclick="login()">Login</button>
+  </form>
+  <p id="login-message"></p>
+</div>
+
+<div id="menu-container" class="container hidden">
+  <h2>Menu</h2>
+  <table id="menu-table">
+    <tr>
+      <th>Item</th>
+      <th>Price</th>
+      <th>Action</th>
+    </tr>
+    <!-- Menu items will be dynamically added here -->
+  </table>
+  <button onclick="order()">Order</button>
+</div>
+
+<div id="payment-container" class="container hidden">
+  <h2>Payment</h2>
+  <label for="payment-method">Select Payment Method:</label>
+  <select id="payment-method">
+    <option value="credit">Credit Card</option>
+    <option value="debit">Debit Card</option>
+  </select>
+  <br>
+  <button onclick="checkout()">Checkout</button>
+</div>
+
+<div id="receipt-container" class="container hidden">
+  <h2>Receipt</h2>
+  <p id="receipt-message"></p>
+</div>
+
+<script>
+  const users = [
+    { username: 'user1', password: 'pass1' },
+    { username: 'user2', password: 'pass2' },
+  ];
+
+  // Mock menu data
+  const menu = [
+    { item: 'Nasi Goreng', price: 15000 },
+    { item: 'Mie Goreng', price: 12000 },
+    { item: 'Es Teh', price: 5000 },
+    { item: 'Es Jeruk', price: 6000 },
+  ];
+
+  let selectedItems = [];
+
+  function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+      document.getElementById('login-container').classList.add('hidden');
+      document.getElementById('menu-container').classList.remove('hidden');
+      displayMenu();
+    } else {
+      document.getElementById('login-message').textContent = 'Invalid username or password';
+    }
+  }
+
+  function displayMenu() {
+    const menuTable = document.getElementById('menu-table');
+
+    menu.forEach(item => {
+      const row = menuTable.insertRow(-1);
+      const cell1 = row.insertCell(0);
+      const cell2 = row.insertCell(1);
+      const cell3 = row.insertCell(2);
+
+      cell1.textContent = item.item;
+      cell2.textContent = item.price;
+      cell3.innerHTML = `<input type="checkbox" onchange="updateSelection('${item.item}', ${item.price})">`;
+    });
+  }
+
+  function updateSelection(item, price) {
+    const checkbox = event.target;
+    if (checkbox.checked) {
+      selectedItems.push({ item, price });
+    } else {
+      selectedItems = selectedItems.filter(i => i.item !== item);
+    }
+  }
+
+  function order() {
+    document.getElementById('menu-container').classList.add('hidden');
+    document.getElementById('payment-container').classList.remove('hidden');
+  }
+
+  function checkout() {
+    const paymentMethod = document.getElementById('payment-method').value;
+    const totalAmount = selectedItems.reduce((total, item) => total + item.price, 0);
+    let discount = 0;
+
+    if (totalAmount > 35000) {
+      discount = 5000;
+    }
+
+    const finalAmount = totalAmount - discount;
+
+    const receiptMessage = `Total Amount: ${totalAmount} IDR\nDiscount: ${discount} IDR\nFinal Amount: ${finalAmount} IDR\nPaid with: ${paymentMethod}`;
+
+    document.getElementById('payment-container').classList.add('hidden');
+    document.getElementById('receipt-container').classList.remove('hidden');
+    document.getElementById('receipt-message').textContent = receiptMessage;
+  }
+</script>
+</body>
+</html>
